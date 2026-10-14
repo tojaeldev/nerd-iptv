@@ -1,323 +1,207 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nerd IPTV</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ Nerd IPTV ⚡</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        body {
-            background: linear-gradient(180deg, #0f0c1b 0%, #080511 50%, #150921 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    body {
+      background: linear-gradient(180deg, #0a0c1b 0%, #120a2a 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
 
-        /* Header / Navbar */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-        }
+    header {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+    }
 
-        .menu-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+    .brand {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
 
-        .menu-btn span {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background-color: #fff;
-        }
+    .hero {
+      text-align: center;
+      margin: 30px 0;
+    }
 
-        .brand {
-            font-size: 1.2rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+    .hero h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #ffffff, #6100ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
 
-        .brand span {
-            color: #ffb703;
-        }
+    .hero p {
+      color: #a0a5c0;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
 
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 40px 20px 20px;
-        }
+    /* Botão Ver os Canais */
+    .btn-main {
+      background: #0044ff;
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-        .hero h1 {
-            font-size: 2.5rem;
-            font-weight: 900;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
+    .btn-main:hover {
+      background: #0055ff;
+    }
 
-        .hero h1 span {
-            background: linear-gradient(90deg, #4d82ff, #ff416c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    /* Player Container */
+    .player-section {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px 0 30px 0;
+      display: none; /* Só abre ao selecionar um canal */
+    }
 
-        .hero p {
-            color: #a0a5b5;
-            font-size: 0.95rem;
-            margin-bottom: 25px;
-        }
+    video {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+      background-color: #000;
+    }
 
-        .btn-main {
-            background: linear-gradient(135deg, #1d4ed8, #1e40af);
-            color: #fff;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4);
-            transition: transform 0.2s;
-        }
+    .section-title {
+      width: 100%;
+      max-width: 1000px;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .btn-main:active {
-            transform: scale(0.98);
-        }
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      background-color: #00ff66;
+      border-radius: 50%;
+      display: inline-block;
+    }
 
-        /* Seção Ao Vivo */
-        .live-section {
-            padding: 20px;
-            flex: 1;
-        }
+    .grid-channels {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
 
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.2rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: 0.5px;
-        }
+    .card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
 
-        .live-dot {
-            width: 14px;
-            height: 14px;
-            background-color: #22c55e;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 10px #22c55e;
-        }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #0055ff;
+    }
 
-        .cards-container {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding-bottom: 15px;
-            scrollbar-width: none; /* Firefox */
-        }
+    .card-status {
+      font-size: 0.75rem;
+      color: #00ff66;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
 
-        .cards-container::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
-        }
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
 
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 20px 15px;
-            min-width: 170px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
+    .card h3 {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      color: #ffffff;
+    }
 
-        .tv-icon {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 15px;
-        }
+    .btn-watch {
+      background: linear-gradient(90deg, #0044ff, #0022aa);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
 
-        .card-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.75rem;
-            color: #a0a5b5;
-            align-self: flex-start;
-            margin-bottom: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #22c55e;
-            border-radius: 50%;
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            align-self: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .btn-watch {
-            flex: 1;
-            background: linear-gradient(135deg, #1d4ed8, #1d4ed8);
-            border: none;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .btn-fav {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        /* Player Modal Container */
-        #player-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        #player-modal video {
-            width: 90%;
-            max-width: 800px;
-            border-radius: 12px;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #ff416c;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            color: #8a8f9e;
-            font-size: 0.85rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        footer .brand {
-            justify-content: center;
-            margin-bottom: 12px;
-            color: #fff;
-        }
-
-        footer p {
-            margin-bottom: 4px;
-        }
-    </style>
-    <!-- Bibliotecas para reprodução de streams HLS (.m3u8) -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    footer {
+      margin-top: 50px;
+      padding: 20px 0;
+      text-align: center;
+      color: #8a8fb0;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <button class="menu-btn" aria-label="Menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        <div class="brand">
-            <span>⚡</span> Nerd IPTV <span>⚡</span>
-        </div>
-    </header>
+  <header>
+    <div class="brand">⚡ Nerd IPTV ⚡</div>
+  </header>
 
-    <main>
-        <section class="hero">
-            <h1>TV <span>AO VIVO</span></h1>
-            <p>Assista aos seus canais favoritos em direto</p>
-            <button class="btn-main">
-                📺 VER OS CANAIS
-            </button>
-        </section>
+  <div class="hero">
+    <h1>TV AO VIVO</h1>
+    <p>Assista aos seus canais favoritos em direto</p>
+    <button class="btn-main" id="btnVerCanais">📺 VER OS CANAIS</button>
+  </div>
 
-        <section class="live-section">
-            <div class="section-title">
-                <span class="live-dot"></span> AO VIVO AGORA
-            </div>
+  <div class="player-section" id="playerContainer">
+    <video id="videoPlayer" controls autoplay></video>
+  </div>
 
-            <div class="cards-container" id="cards-container">
-                <!-- Os canais serão gerados via JS -->
-            </div>
-        </section>
-    </main>
+  <div class="section-title" id="canaisSection">
+    <span class="live-dot"></span> AO VIVO AGORA
+  </div>
 
-    <!-- Modal para Player de Vídeo -->
-    <div id="player-modal">
-        <button class="close-btn" id="close-modal">Fechar</button>
-        <video id="video-player" controls autoplay></video>
-    </div>
+  <div class="grid-channels" id="channelsGrid">
+    <!-- Os canais vão ser injetados aqui -->
+  </div>
 
-    <footer>
-        <div class="brand">
-            <span>⚡</span> Nerd IPTV <span>⚡</span>
-        </div>
-        <p>Dono: Tojael Daniel Dev</p>
-        <p>WhatsApp: +244 997 156 308</p>
-    </footer>
+  <footer>
+    <p>⚡ <strong>Nerd IPTV</strong> ⚡</p>
+    <p>Dono: Tojael Daniel Dev</p>
+    <p>WhatsApp: +244 997 156 308</p>
+  </footer>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
-  </html>
-  
+</html>

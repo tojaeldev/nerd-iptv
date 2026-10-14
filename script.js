@@ -1,10 +1,4 @@
-// Lista de canais com URLs de teste públicos e estáveis (HTTPS)
 const canais = [
-  {
-    nome: "RTP 1 (Test)",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/1/1a/RTP1_logo_2016.svg",
-    url: "https://livesg1.rtva.hiway.media/11a6d6f4-ee13-47c7-9c27-7313cf5424e2/manifest.m3u8"
-  },
   {
     nome: "Red Bull TV",
     logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Red_Bull_TV_logo.svg",
@@ -14,12 +8,18 @@ const canais = [
     nome: "NASA TV",
     logo: "https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg",
     url: "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8"
+  },
+  {
+    nome: "Andorra TV",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/3/32/Logo_Andorra_Televisi%C3%B3.png",
+    url: "https://livesg1.rtva.hiway.media/11a6d6f4-ee13-47c7-9c27-7313cf5424e2/manifest.m3u8"
   }
 ];
 
 function renderCanais() {
   const container = document.getElementById('channelsGrid');
   if (!container) return;
+
   container.innerHTML = '';
 
   canais.forEach((canal) => {
@@ -30,8 +30,14 @@ function renderCanais() {
       <div class="card-status"><span class="live-dot"></span> AO VIVO</div>
       <img src="${canal.logo}" alt="${canal.nome}" class="card-icon" onerror="this.src='https://via.placeholder.com/50?text=TV'">
       <h3>${canal.nome}</h3>
-      <button class="btn-watch" onclick="playStream('${canal.url}')">▶ ASSISTIR</button>
+      <button class="btn-watch" data-url="${canal.url}">▶ ASSISTIR</button>
     `;
+
+    // Evento direto de clique no botão
+    const btn = card.querySelector('.btn-watch');
+    btn.addEventListener('click', () => {
+      playStream(canal.url);
+    });
 
     container.appendChild(card);
   });
@@ -45,33 +51,27 @@ function playStream(url) {
   playerContainer.scrollIntoView({ behavior: 'smooth' });
 
   if (Hls.isSupported()) {
-    const hls = new Hls({
-      enableWorker: true,
-      lowLatencyMode: true,
-    });
-    
+    const hls = new Hls();
     hls.loadSource(url);
     hls.attachMedia(video);
-
-    // Evento de erro para detetar falhas de transmissão/CORS
-    hls.on(Hls.Events.ERROR, function (event, data) {
-      if (data.fatal) {
-        console.error("Erro ao carregar o canal:", data);
-        alert("Não foi possível carregar este canal (possível erro de CORS ou link offline). Tente outro canal!");
-        hls.destroy();
-      }
-    });
-
     hls.on(Hls.Events.MANIFEST_PARSED, function () {
-      video.play().catch(e => console.log("Aguardando interação do utilizador para dar play"));
+      video.play().catch(err => console.log("Aguardando interação:", err));
     });
-
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = url;
     video.play();
-  } else {
-    alert("O seu navegador não suporta reprodução de fluxos HLS.");
   }
 }
 
-document.addEventListener('DOMContentLoaded', renderCanais);
+// Inicializa quando o documento carrega
+document.addEventListener('DOMContentLoaded', () => {
+  renderCanais();
+
+  // Ação do botão "VER OS CANAIS"
+  const btnVerCanais = document.getElementById('btnVerCanais');
+  if (btnVerCanais) {
+    btnVerCanais.addEventListener('click', () => {
+      document.getElementById('canaisSection').scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+});
